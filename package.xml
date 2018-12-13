@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>flir_boson_usb</name>
+  <version>1.0.0</version>
+  <description>A simple USB camera driver for the FLIR BOSON using OpenCV</description>
+  <license>MIT</license>
+
+  <maintainer email="software@autonomoustuff.com">AutonomouStuff Software Development Team</maintainer>
+  <author email="jdriscoll@autonomoustuff.com">Joe Driscoll</author>
+  <author email="jwhitley@autonomoustuff.com">Joshua Whitley</author>
+
+  <url type="website">http://wiki.ros.org/flir_boson_usb</url>
+  <url type="repository">https://github.com/astuff/flir_boson_usb</url>
+  <url type="bugtracker">https://github.com/astuff/flir_boson_usb/issues</url>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>roscpp</depend>
+  <depend>cv_bridge</depend>
+  <depend>image_transport</depend>
+  <depend>sensor_msgs</depend>
+</package>
