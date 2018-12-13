@@ -34,7 +34,6 @@ add_dependencies(${PROJECT_NAME}_node
 )
 
 target_link_libraries(${PROJECT_NAME}_node
-  rlmez1203
   ${OpenCV_LIBRARIES}
   ${catkin_LIBRARIES}
 )

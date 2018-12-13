@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- declare arguments with default values -->
+  <arg name="dev" default="/dev/video0"/>
+
+  <!-- valid values are RAW16 or YUV -->
+  <arg name="video_mode" default="YUV"/>
+
+  <!-- valid values are TRUE or FALSE -->
+  <arg name="zoom_enable" default="FALSE"/>
+
+  <!-- valid values are Boson_320 or Boson_640 -->
+  <arg name="sensor_type" default="Boson_640"/>
+
+  <node pkg="flir_boson_usb" type="flir_boson_usb_node" name="flir_boson_usb_node">
+    <param name="dev" value="$(arg dev)"/>
+    <param name="video_mode" value="$(arg video_mode)"/>
+    <param name="zoom_enable" value="$(arg zoom_enable)"/>
+    <param name="sensor_type" value="$(arg sensor_type)"/>
+  </node>
+</launch>

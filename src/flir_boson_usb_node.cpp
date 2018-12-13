@@ -22,8 +22,6 @@
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/Image.h>
 
-#include <rlmez.h>
-
 using namespace cv;
 
 enum Encoding {
@@ -102,25 +100,6 @@ int main(int argc, char** argv)
   Encoding video_mode = RAW16;
   int zoom_enable = 0;
   SensorTypes sensor_type = Boson320;
-
-  // LICENSE CHECK
-  const char *product_name = "as_camera_processing";
-  const char *product_version = flir_boson_usb_VERSION;
-  int days;
-  char errstring[RLM_ERRSTRING_MAX];
-  int lic_stat = rlmez_checkout(const_cast<char *>(product_name), const_cast<char *>(product_version), &days);
-
-  if (lic_stat)
-  {
-    std::cout << "Product license verification failed. Status:" << lic_stat << "; ";
-    rlmez_errstring(lic_stat, errstring);
-    std::cout << std::string(errstring) << std::endl;
-    return 0;
-  }
-  else
-  {
-    std::cout << "Product license verification succeeded for " << std::string(product_name) << "!" << std::endl;
-  }
 
   // Set up ROS
   ros::init(argc, argv, "flir_boson_usb_node");
