@@ -19,4 +19,5 @@
   <depend>cv_bridge</depend>
   <depend>image_transport</depend>
   <depend>sensor_msgs</depend>
+  <depend>libopencv-dev</depend>
 </package>
