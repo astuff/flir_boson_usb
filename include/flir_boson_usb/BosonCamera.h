@@ -75,8 +75,10 @@ class BosonCamera : public nodelet::Nodelet
                         const int& height,
                         const int& width);
 
-    int32_t width, height;
     image_transport::Publisher pub;
+    cv_bridge::CvImage cv_img;
+    sensor_msgs::ImagePtr pub_image;
+    int32_t width, height;
     int32_t fd;
     int32_t i;
     struct v4l2_capability cap;
