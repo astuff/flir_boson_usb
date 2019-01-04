@@ -1,5 +1,25 @@
-#ifndef FLIR_BOSON_USB_BOSON_CAMERA_H
-#define FLIR_BOSON_USB_BOSON_CAMERA_H
+/*
+ * Copyright © 2019 AutonomouStuff, LLC
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the “Software”), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies
+ * or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+ * OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
+#ifndef FLIR_BOSON_USB_BOSONCAMERA_H
+#define FLIR_BOSON_USB_BOSONCAMERA_H
 
 // C++ Includes
 #include <string>
@@ -45,20 +65,31 @@ enum SensorTypes
 class BosonCamera : public nodelet::Nodelet
 {
   public:
-    BosonCamera() {};
-    ~BosonCamera() {};
+    BosonCamera() {}
+    ~BosonCamera() {}
 
   private:
     virtual void onInit();
-    void agc_basic_linear(const cv::Mat& input_16,
-                          cv::Mat output_8,
-                          const int& height,
-                          const int& width);
+    void agcBasicLinear(const cv::Mat& input_16,
+                        cv::Mat output_8,
+                        const int& height,
+                        const int& width);
 
-    int width, height;
+    int32_t width, height;
     image_transport::Publisher pub;
+    int32_t fd;
+    int32_t i;
+    struct v4l2_capability cap;
+    int32_t frame = 0;                // First frame number enumeration
+    int8_t thermal_sensor_name[20];  // To store the sensor name
+
+    // Default Program options
+    std::string dev_path;
+    Encoding video_mode;
+    int32_t zoom_enable;
+    SensorTypes sensor_type;
 };
 
 }  // namespace flir_boson_usb
 
-#endif  // FLIR_BOSON_USB_BOSON_CAMERA_H
+#endif  // FLIR_BOSON_USB_BOSONCAMERA_H

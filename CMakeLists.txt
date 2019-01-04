@@ -10,6 +10,7 @@ find_package(catkin REQUIRED
   cv_bridge
   image_transport
   sensor_msgs
+  roslint
 )
 
 find_package(OpenCV REQUIRED)
@@ -53,6 +54,9 @@ target_link_libraries(BosonCamera
   ${OpenCV_LIBRARIES}
   ${catkin_LIBRARIES}
 )
+
+set(ROSLINT_CPP_OPTS "--filter=-runtime/threadsafe_fn,-build/namespaces,-build/include_what_you_use")
+roslint_cpp()
 
 install(TARGETS ${PROJECT_NAME}_node BosonCamera
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}

@@ -1,3 +1,23 @@
+/*
+ * Copyright © 2019 AutonomouStuff, LLC
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this
+ * software and associated documentation files (the “Software”), to deal in the Software
+ * without restriction, including without limitation the rights to use, copy, modify,
+ * merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in all copies
+ * or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+ * INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+ * PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE
+ * OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 // C++ Includes
 #include <cstdio>
 #include <fstream>
@@ -24,12 +44,14 @@
 
 using namespace cv;
 
-enum Encoding {
+enum Encoding
+{
   YUV = 0,
   RAW16 = 1
 };
 
-enum SensorTypes {
+enum SensorTypes
+{
   Boson320,
   Boson640
 };
@@ -37,64 +59,18 @@ enum SensorTypes {
 int width;
 int height;
 
-/* ---------------------------- 16 bits Mode auxiliary functions ---------------------------------------*/
-
-// AGC Sample ONE: Linear from min to max.
-// Input is a MATRIX (height x width) of 16bits. (OpenCV mat)
-// Output is a MATRIX (height x width) of 8 bits (OpenCV mat)
-void AGC_Basic_Linear(Mat input_16, Mat output_8, int height, int width)
+void AGC_Basic_Linear(const cv::Mat& input_16,
+                      cv::Mat output_8,
+                      const int& height,
+                      const int& width)
 {
-  int i, j;  // aux variables
-
-  // auxiliary variables for AGC calcultion
-  unsigned int max1 = 0;         // 16 bits
-  unsigned int min1 = 0xFFFF;    // 16 bits
-  unsigned int value1, value2, value3, value4;
-
-  // RUN a super basic AGC
-  for (i=0; i<height; i++)
-  {
-    for (j=0; j<width; j++)
-    {
-      value1 = input_16.at<uchar>(i,j*2+1) & 0XFF;  // High Byte
-      value2 = input_16.at<uchar>(i,j*2) & 0xFF;    // Low Byte
-      value3 = ( value1 << 8) + value2;
-
-      if (value3 <= min1)
-      {
-        min1 = value3;
-      }
-
-      if (value3 >= max1)
-      {
-        max1 = value3;
-      }
-    }
-  }
-
-  for (int i=0; i<height; i++)
-  {
-    for (int j=0; j<width; j++)
-    {
-      value1 = input_16.at<uchar>(i,j*2+1) & 0XFF;  // High Byte
-      value2 = input_16.at<uchar>(i,j*2) & 0xFF;    // Low Byte
-      value3 = ( value1 << 8) + value2;
-      value4 = ( ( 255 * ( value3 - min1) ) ) / (max1-min1);
-
-      output_8.at<uchar>(i,j) = (uchar)(value4 & 0xFF);
-    }
-  }
 }
 
 int main(int argc, char** argv)
 {
-  int ret;
   int fd;
-  int i;
   struct v4l2_capability cap;
-  long frame = 0;        // First frame number enumeration
-  char label[50];        // To display the information
-  char thermal_sensor_name[20];  // To store the sensor name
+
   // Default Program options
   std::string dev_path = "/dev/video0";
   Encoding video_mode = RAW16;
@@ -203,16 +179,18 @@ int main(int argc, char** argv)
     return -1;
   }
 
-  if(!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)){
+  if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE))
+  {
     ROS_ERROR("flir_boson_usb - The device does not handle single-planar video capture.");
     ros::shutdown();
     return -1;
   }
 
-	struct v4l2_format format;
+  struct v4l2_format format;
 
   // Two different FORMAT modes, 8 bits vs RAW16
-  if (video_mode == RAW16) {
+  if (video_mode == RAW16)
+  {
     // I am requiring thermal 16 bits mode
     format.fmt.pix.pixelformat = V4L2_PIX_FMT_Y16;
 
@@ -233,9 +211,9 @@ int main(int argc, char** argv)
         break;
     }
   }
-  else // 8- bits is always 640x512 (even for a Boson 320)
+  else  // 8- bits is always 640x512 (even for a Boson 320)
   {
-    format.fmt.pix.pixelformat = V4L2_PIX_FMT_YVU420; // thermal, works   LUMA, full Cr, full Cb
+    format.fmt.pix.pixelformat = V4L2_PIX_FMT_YVU420;  // thermal, works   LUMA, full Cr, full Cb
     width = 640;
     height = 512;
   }
@@ -255,7 +233,7 @@ int main(int argc, char** argv)
 
   // we need to inform the device about buffers to use.
   // and we need to allocate them.
-  // weâ€™ll use a single buffer, and map our memory using mmap.
+  // we'll use a single buffer, and map our memory using mmap.
   // All this information is sent using the VIDIOC_REQBUFS call and a
   // v4l2_requestbuffers structure:
   struct v4l2_requestbuffers bufrequest;
@@ -315,18 +293,20 @@ int main(int argc, char** argv)
   // Declarations for RAW16 representation
   // Will be used in case we are reading RAW16 format
   // Boson320 , Boson 640
-  Mat thermal16(height, width, CV_16U, buffer_start);   // OpenCV input buffer  : Asking for all info: two bytes per pixel (RAW16)  RAW16 mode`
-  Mat thermal16_linear(height,width, CV_8U, 1);         // OpenCV output buffer : Data used to display the video
+  // OpenCV input buffer  : Asking for all info: two bytes per pixel (RAW16)  RAW16 mode`
+  Mat thermal16(height, width, CV_16U, buffer_start);
+  // OpenCV output buffer : Data used to display the video
+  Mat thermal16_linear(height, width, CV_8U, 1);
 
   // Declarations for Zoom representation
   // Will be used or not depending on program arguments
-  Size size(640,512);
+  Size size(640, 512);
   Mat thermal16_linear_zoom;   // (height,width, CV_8U, 1);    // Final representation
   Mat thermal_rgb_zoom;   // (height,width, CV_8U, 1);    // Final representation
 
-  int luma_height ;
-  int luma_width ;
-  int color_space ;;
+  int luma_height;
+  int luma_width;
+  int color_space;
 
   // Declarations for 8bits YCbCr mode
   // Will be used in case we are reading YUV format
@@ -335,7 +315,9 @@ int main(int argc, char** argv)
   luma_width = width;
   color_space = CV_8UC1;
   Mat thermal_luma(luma_height, luma_width,  color_space, buffer_start);  // OpenCV input buffer
-  Mat thermal_rgb(height, width, CV_8UC3, 1);    // OpenCV output buffer , BGR -> Three color spaces (640 - 640 - 640 : p11 p21 p31 .... / p12 p22 p32 ..../ p13 p23 p33 ...)
+  // OpenCV output buffer , BGR -> Three color spaces :
+  // (640 - 640 - 640 : p11 p21 p31 .... / p12 p22 p32 ..../ p13 p23 p33 ...)
+  Mat thermal_rgb(height, width, CV_8UC3, 1);
 
   // Read frame, do AGC, paint frame
   while (ros::ok())
@@ -349,7 +331,7 @@ int main(int argc, char** argv)
     }
 
     // The buffer's waiting in the outgoing queue.
-    if(ioctl(fd, VIDIOC_DQBUF, &bufferinfo) < 0)
+    if (ioctl(fd, VIDIOC_DQBUF, &bufferinfo) < 0)
     {
       ROS_ERROR("flir_boson_usb - VIDIOC_QBUF");
       ros::shutdown();
@@ -381,7 +363,8 @@ int main(int argc, char** argv)
 
         // Apply top hat filter
         int erosion_size = 5;
-        Mat top_hat_img, kernel = getStructuringElement(MORPH_ELLIPSE, Size(2 * erosion_size + 1, 2 * erosion_size + 1));
+        Mat top_hat_img, kernel = getStructuringElement(MORPH_ELLIPSE,
+            Size(2 * erosion_size + 1, 2 * erosion_size + 1));
         morphologyEx(gamma_corrected_image, top_hat_img, MORPH_TOPHAT, kernel);
 
         cv_img.image = thermal16_linear;
@@ -403,14 +386,14 @@ int main(int argc, char** argv)
         image_pub.publish(pub_image);
       }
     }
-    else // Video is in 8 bits YUV
+    else  // Video is in 8 bits YUV
     {
       // ---------------------------------
       // DATA in YUV
-      cvtColor(thermal_luma, thermal_rgb, COLOR_YUV2GRAY_I420, 0 );    
+      cvtColor(thermal_luma, thermal_rgb, COLOR_YUV2GRAY_I420, 0);
       cv_img.image = thermal_rgb;
       cv_img.encoding = "mono8";
-      
+
       cv_img.header.stamp = ros::Time::now();
       cv_img.header.frame_id = "boson_camera";
       pub_image = cv_img.toImageMsg();
@@ -421,15 +404,15 @@ int main(int argc, char** argv)
   }
 
   // Finish loop. Exiting.
-	// Deactivate streaming
-	if (ioctl(fd, VIDIOC_STREAMOFF, &type) < 0 )
+  // Deactivate streaming
+  if (ioctl(fd, VIDIOC_STREAMOFF, &type) < 0 )
   {
-		ROS_ERROR("flir_boson_usb - VIDIOC_STREAMOFF error.");
-		ros::shutdown();
+    ROS_ERROR("flir_boson_usb - VIDIOC_STREAMOFF error.");
+    ros::shutdown();
     return -1;
-	};
+  };
 
-	close(fd);
+  close(fd);
 
   return 0;
 }
