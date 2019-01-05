@@ -66,7 +66,7 @@ class BosonCamera : public nodelet::Nodelet
 {
   public:
     BosonCamera() {}
-    ~BosonCamera() {}
+    ~BosonCamera();
 
   private:
     virtual void onInit();
@@ -74,16 +74,25 @@ class BosonCamera : public nodelet::Nodelet
                         cv::Mat output_8,
                         const int& height,
                         const int& width);
+    bool openCamera();
+    bool closeCamera();
+    void captureAndPublish(const ros::TimerEvent& evt);
 
-    image_transport::Publisher pub;
+    image_transport::Publisher image_pub;
     cv_bridge::CvImage cv_img;
     sensor_msgs::ImagePtr pub_image;
+    ros::Timer capture_timer;
     int32_t width, height;
     int32_t fd;
     int32_t i;
     struct v4l2_capability cap;
     int32_t frame = 0;                // First frame number enumeration
     int8_t thermal_sensor_name[20];  // To store the sensor name
+    struct v4l2_buffer bufferinfo;
+    void* buffer_start;
+
+    cv::Mat thermal16, thermal16_linear, thermal16_linear_zoom,
+            thermal_rgb_zoom, thermal_luma, thermal_rgb;
 
     // Default Program options
     std::string dev_path;
