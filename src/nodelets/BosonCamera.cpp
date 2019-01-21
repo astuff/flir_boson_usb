@@ -26,6 +26,11 @@ PLUGINLIB_EXPORT_CLASS(flir_boson_usb::BosonCamera, nodelet::Nodelet)
 using namespace cv;
 using namespace flir_boson_usb;
 
+BosonCamera::BosonCamera() :
+  cv_img()
+{
+}
+
 BosonCamera::~BosonCamera()
 {
   closeCamera();
@@ -33,21 +38,28 @@ BosonCamera::~BosonCamera()
 
 void BosonCamera::onInit()
 {
-  ros::NodeHandle nh = getNodeHandle();
-  ros::NodeHandle pnh = getPrivateNodeHandle();
+  nh = getNodeHandle();
+  pnh = getPrivateNodeHandle();
+  camera_info = boost::shared_ptr<camera_info_manager::CameraInfoManager>(
+      new camera_info_manager::CameraInfoManager(nh));
+  it = boost::shared_ptr<image_transport::ImageTransport>(new image_transport::ImageTransport(nh));
+  image_pub = it->advertiseCamera("image_raw", 1);
 
   bool exit = false;
-  std::string video_mode_str, zoom_enable_str, sensor_type_str;
+  std::string video_mode_str, zoom_enable_str,
+    sensor_type_str, camera_info_url_str;
 
   pnh.param<std::string>("dev_path", dev_path, "/dev/video0");
   pnh.param<std::string>("video_mode", video_mode_str, "RAW16");
   pnh.param<std::string>("zoon_enable", zoom_enable_str, "FALSE");
   pnh.param<std::string>("sensor_type", sensor_type_str, "Boson_640");
+  pnh.param<std::string>("camera_info_url", camera_info_url_str, "");
 
   ROS_INFO("flir_boson_usb - Got dev: %s.", dev_path.c_str());
   ROS_INFO("flir_boson_usb - Got video mode: %s.", video_mode_str.c_str());
   ROS_INFO("flir_boson_usb - Got zoom enable: %s.", zoom_enable_str.c_str());
   ROS_INFO("flir_boson_usb - Got sensor type: %s.", sensor_type_str.c_str());
+  ROS_INFO("flir_boson_usb - Got camera_info_url: %s.", camera_info_url_str.c_str());
 
   if (video_mode_str == "RAW16")
   {
@@ -85,11 +97,13 @@ void BosonCamera::onInit()
       sensor_type_str == "boson_320")
   {
     sensor_type = Boson320;
+    camera_info->setCameraName("Boson320");
   }
   else if (sensor_type_str == "Boson_640" ||
            sensor_type_str == "boson_640")
   {
     sensor_type = Boson640;
+    camera_info->setCameraName("Boson640");
   }
   else
   {
@@ -97,16 +111,23 @@ void BosonCamera::onInit()
     ROS_ERROR("flir_boson_usb - Invalid sensor_type value provided. Exiting.");
   }
 
-  exit = !openCamera();
+  if (camera_info->validateURL(camera_info_url_str))
+  {
+    camera_info->loadCameraInfo(camera_info_url_str);
+  }
+  else
+  {
+    ROS_INFO("flir_boson_usb - camera_info_url could not be validated. Publishing with unconfigured camera.");
+  }
+
+  if (!exit)
+    exit = openCamera() ? exit : true;
 
   if (exit)
   {
     ros::shutdown();
     return;
   }
-
-  image_transport::ImageTransport it(nh);
-  image_pub = it.advertise("image", 10);
 
   capture_timer = nh.createTimer(ros::Duration(0.03333), boost::bind(&BosonCamera::captureAndPublish, this, _1));
 }
@@ -322,6 +343,11 @@ void BosonCamera::captureAndPublish(const ros::TimerEvent& evt)
 {
   Size size(640, 512);
 
+  sensor_msgs::CameraInfoPtr
+    ci(new sensor_msgs::CameraInfo(camera_info->getCameraInfo()));
+
+  ci->header.frame_id = "boson_camera";
+
   // Put the buffer in the incoming queue.
   if (ioctl(fd, VIDIOC_QBUF, &bufferinfo) < 0)
   {
@@ -370,7 +396,9 @@ void BosonCamera::captureAndPublish(const ros::TimerEvent& evt)
       cv_img.header.frame_id = "boson_camera";
       cv_img.encoding = "mono8";
       pub_image = cv_img.toImageMsg();
-      image_pub.publish(pub_image);
+
+      ci->header.stamp = pub_image->header.stamp;
+      image_pub.publish(pub_image, ci);
     }
     else
     {
@@ -381,7 +409,9 @@ void BosonCamera::captureAndPublish(const ros::TimerEvent& evt)
       cv_img.header.frame_id = "boson_camera";
       cv_img.encoding = "mono8";
       pub_image = cv_img.toImageMsg();
-      image_pub.publish(pub_image);
+
+      ci->header.stamp = pub_image->header.stamp;
+      image_pub.publish(pub_image, ci);
     }
   }
   else  // Video is in 8 bits YUV
@@ -395,6 +425,8 @@ void BosonCamera::captureAndPublish(const ros::TimerEvent& evt)
     cv_img.header.stamp = ros::Time::now();
     cv_img.header.frame_id = "boson_camera";
     pub_image = cv_img.toImageMsg();
-    image_pub.publish(pub_image);
+
+    ci->header.stamp = pub_image->header.stamp;
+    image_pub.publish(pub_image, ci);
   }
 }

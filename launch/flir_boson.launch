@@ -12,10 +12,13 @@
   <!-- valid values are Boson_320 or Boson_640 -->
   <arg name="sensor_type" default="Boson_640"/>
 
+  <arg name="camera_info_url" default="package://flir_boson_usb/example_calibrations/Boson_640.yaml" />
+
   <node pkg="flir_boson_usb" type="flir_boson_usb_node" name="flir_boson_usb_node">
     <param name="dev" value="$(arg dev)"/>
     <param name="video_mode" value="$(arg video_mode)"/>
     <param name="zoom_enable" value="$(arg zoom_enable)"/>
     <param name="sensor_type" value="$(arg sensor_type)"/>
+    <param name="camera_info_url" value="$(arg camera_info_url)"/>
   </node>
 </launch>

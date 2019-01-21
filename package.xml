@@ -20,6 +20,7 @@
   <depend>roscpp</depend>
   <depend>nodelet</depend>
   <depend>cv_bridge</depend>
+  <depend>camera_info_manager</depend>
   <depend>image_transport</depend>
   <depend>sensor_msgs</depend>
 
