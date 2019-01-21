@@ -71,7 +71,7 @@ class BosonCamera : public nodelet::Nodelet
   private:
     virtual void onInit();
     void agcBasicLinear(const cv::Mat& input_16,
-                        cv::Mat output_8,
+                        cv::Mat* output_8,
                         const int& height,
                         const int& width);
     bool openCamera();
