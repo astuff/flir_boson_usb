@@ -6,20 +6,23 @@ add_compile_options(-std=c++11)
 find_package(catkin REQUIRED
   COMPONENTS
   roscpp
+  nodelet
   cv_bridge
   image_transport
   sensor_msgs
+  roslint
 )
 
 find_package(OpenCV REQUIRED)
 
 catkin_package(
-  CATKIN_DEPENDS cv_bridge
+  CATKIN_DEPENDS
+  cv_bridge
+  nodelet
 )
 
-add_definitions("-D${PROJECT_NAME}_VERSION=\"${${PROJECT_NAME}_VERSION}\"")
-
 include_directories(
+  include
   ${OpenCV_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
 )
@@ -38,7 +41,24 @@ target_link_libraries(${PROJECT_NAME}_node
   ${catkin_LIBRARIES}
 )
 
-install(TARGETS ${PROJECT_NAME}_node
+add_library(BosonCamera
+  src/nodelets/BosonCamera.cpp
+)
+
+add_dependencies(BosonCamera
+  ${${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
+)
+
+target_link_libraries(BosonCamera
+  ${OpenCV_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
+
+set(ROSLINT_CPP_OPTS "--filter=-runtime/threadsafe_fn,-build/namespaces,-build/include_what_you_use")
+roslint_cpp()
+
+install(TARGETS ${PROJECT_NAME}_node BosonCamera
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

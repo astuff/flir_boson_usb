@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<library path="lib/libBosonCamera">
+  <class name="flir_boson_usb/BosonCamera" type="flir_boson_usb::BosonCamera" base_class_type="nodelet::Nodelet">
+    <description>
+      Handles the connection to a FLIR Boson USB camera and grabs frames using OpenCV.
+    </description>
+  </class>
+</library>
