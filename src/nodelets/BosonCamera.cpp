@@ -322,6 +322,20 @@ void BosonCamera::captureAndPublish(const ros::TimerEvent& evt)
 {
   Size size(640, 512);
 
+  // Put the buffer in the incoming queue.
+  if (ioctl(fd, VIDIOC_QBUF, &bufferinfo) < 0)
+  {
+    ROS_ERROR("flir_boson_usb - VIDIOC_QBUF error.");
+    return;
+  }
+
+  // The buffer's waiting in the outgoing queue.
+  if (ioctl(fd, VIDIOC_DQBUF, &bufferinfo) < 0)
+  {
+    ROS_ERROR("flir_boson_usb - VIDIOC_DQBUF error.");
+    return;
+  }
+
   if (video_mode == RAW16)
   {
     // -----------------------------
