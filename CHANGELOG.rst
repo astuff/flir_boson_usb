@@ -2,8 +2,8 @@
 Changelog for package flir_boson_usb
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.1 (2019-01-21)
+------------------
 * Temporarily removing camera_info_manager.
 * Contributors: Joshua Whitley
 
