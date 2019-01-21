@@ -105,10 +105,10 @@ void BosonCamera::onInit()
     return;
   }
 
-  capture_timer = nh.createTimer(ros::Duration(0.03333), boost::bind(&BosonCamera::captureAndPublish, this, _1));
-
   image_transport::ImageTransport it(nh);
   image_pub = it.advertise("image", 10);
+
+  capture_timer = nh.createTimer(ros::Duration(0.03333), boost::bind(&BosonCamera::captureAndPublish, this, _1));
 }
 
 // AGC Sample ONE: Linear from min to max.
