@@ -42,7 +42,6 @@
 #include <nodelet/nodelet.h>
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
-#include <camera_info_manager/camera_info_manager.h>
 
 #include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/Image.h>
