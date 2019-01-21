@@ -65,7 +65,7 @@ install(TARGETS ${PROJECT_NAME}_node BosonCamera
 )
 
 install(DIRECTORY
-  launch/
+  launch
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
