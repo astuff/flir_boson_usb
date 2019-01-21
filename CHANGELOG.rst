@@ -2,6 +2,13 @@
 Changelog for package flir_boson_usb
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Modified install of launch folder.
+* Added roslint and cleaned up based on suggestions.
+* Converted driver to BosonCamera nodelet.
+* Contributors: Joshua Whitley
+
 1.0.0 (2018-12-13)
 ------------------
 * Adding LICENSE.
