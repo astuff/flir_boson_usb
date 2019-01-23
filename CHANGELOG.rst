@@ -2,6 +2,11 @@
 Changelog for package flir_boson_usb
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+1.1.2 (2019-01-23)
+------------------
+* Found bug in device path parameter.
+* Contributors: Joshua Whitley
+
 1.1.1 (2019-01-21)
 ------------------
 * Temporarily removing camera_info_manager.

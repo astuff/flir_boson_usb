@@ -49,7 +49,7 @@ void BosonCamera::onInit()
   std::string video_mode_str, zoom_enable_str,
     sensor_type_str, camera_info_url_str;
 
-  pnh.param<std::string>("dev_path", dev_path, "/dev/video0");
+  pnh.param<std::string>("dev", dev_path, "/dev/video0");
   pnh.param<std::string>("video_mode", video_mode_str, "RAW16");
   pnh.param<std::string>("zoon_enable", zoom_enable_str, "FALSE");
   pnh.param<std::string>("sensor_type", sensor_type_str, "Boson_640");
