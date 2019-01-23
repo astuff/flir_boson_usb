@@ -1,6 +1,11 @@
 <?xml version="1.0"?>
 <launch>
-  <!-- declare arguments with default values -->
+  <arg name="namespace" default="flir_boson"/>
+
+  <!-- wether or not we want to rectfy the image with image_proc -->
+  <arg name="rectify_image" default="false"/>
+
+  <!-- the linux file descriptor location for the camera -->
   <arg name="dev" default="/dev/video0"/>
 
   <!-- valid values are RAW16 or YUV -->
@@ -12,13 +17,18 @@
   <!-- valid values are Boson_320 or Boson_640 -->
   <arg name="sensor_type" default="Boson_640"/>
 
-  <arg name="camera_info_url" default="package://flir_boson_usb/example_calibrations/Boson_640.yaml" />
+  <!-- location of the camera calibration file -->
+  <arg name="camera_info_url" default="package://flir_boson_usb/example_calibrations/Boson640.yaml"/>
 
-  <node pkg="flir_boson_usb" type="flir_boson_usb_node" name="flir_boson_usb_node">
-    <param name="dev" value="$(arg dev)"/>
-    <param name="video_mode" value="$(arg video_mode)"/>
-    <param name="zoom_enable" value="$(arg zoom_enable)"/>
-    <param name="sensor_type" value="$(arg sensor_type)"/>
-    <param name="camera_info_url" value="$(arg camera_info_url)"/>
-  </node>
+  <group ns="$(arg namespace)">
+    <node pkg="flir_boson_usb" type="flir_boson_usb_node" name="flir_boson_usb_node">
+      <param name="dev" value="$(arg dev)"/>
+      <param name="video_mode" value="$(arg video_mode)"/>
+      <param name="zoom_enable" value="$(arg zoom_enable)"/>
+      <param name="sensor_type" value="$(arg sensor_type)"/>
+      <param name="camera_info_url" value="$(arg camera_info_url)"/>
+    </node>
+
+    <node pkg="image_proc" type="image_proc" name="image_proc" if="$(arg rectify_image)"/>
+  </group>
 </launch>
