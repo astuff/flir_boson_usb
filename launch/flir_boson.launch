@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="namespace" default="flir_boson"/>
+  <arg name="frame_id" default="boson_camera"/>
 
   <!-- the linux file descriptor location for the camera -->
   <arg name="dev" default="/dev/video0"/>
@@ -18,6 +19,7 @@
   <arg name="camera_info_url" default="package://flir_boson_usb/example_calibrations/Boson640.yaml"/>
 
   <node pkg="flir_boson_usb" type="flir_boson_usb_node" name="flir_boson_usb_node" ns="$(arg namespace)">
+    <param name="frame_id" value="$(arg frame_id)"/>
     <param name="dev" value="$(arg dev)"/>
     <param name="video_mode" value="$(arg video_mode)"/>
     <param name="zoom_enable" value="$(arg zoom_enable)"/>

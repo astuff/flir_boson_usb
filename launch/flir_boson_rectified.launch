@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="namespace" default="flir_boson"/>
-
   <arg name="frame_id" default="boson_camera" />
-
   <arg name="manager" default="$(arg frame_id)_nodelet_manager" />
 
   <!-- the linux file descriptor location for the camera -->
@@ -26,6 +24,7 @@
     <node pkg="nodelet" type="nodelet" name="$(arg manager)" args="manager" />
 
     <node pkg="nodelet" type="nodelet" name="$(arg manager)_driver" args="load flir_boson_usb/BosonCamera $(arg manager)">
+      <param name="frame_id" value="$(arg frame_id)"/>
       <param name="dev" value="$(arg dev)"/>
       <param name="video_mode" value="$(arg video_mode)"/>
       <param name="zoom_enable" value="$(arg zoom_enable)"/>
