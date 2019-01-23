@@ -2,8 +2,8 @@
 Changelog for package flir_boson_usb
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.1.2 (2019-01-23)
+------------------
 * Found bug in device path parameter.
 * Contributors: Joshua Whitley
 
