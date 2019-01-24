@@ -114,7 +114,8 @@ void BosonCamera::onInit()
   }
   else
   {
-    capture_timer = nh.createTimer(ros::Duration(1.0 / frame_rate), boost::bind(&BosonCamera::captureAndPublish, this, _1));
+    capture_timer = nh.createTimer(ros::Duration(1.0 / frame_rate),
+        boost::bind(&BosonCamera::captureAndPublish, this, _1));
   }
 }
 
@@ -226,7 +227,7 @@ bool BosonCamera::openCamera()
   // request desired FORMAT
   if (ioctl(fd, VIDIOC_S_FMT, &format) < 0)
   {
-    ROS_ERROR("flir_boson_usb - VIDIOC_S_FMT error.");
+    ROS_ERROR("flir_boson_usb - VIDIOC_S_FMT error. The camera does not support the requested video format.");
     return false;
   }
 
@@ -242,7 +243,7 @@ bool BosonCamera::openCamera()
 
   if (ioctl(fd, VIDIOC_REQBUFS, &bufrequest) < 0)
   {
-    ROS_ERROR("flir_boson_usb - VIDIOC_REQBUFS error.");
+    ROS_ERROR("flir_boson_usb - VIDIOC_REQBUFS error. The camera failed to allocate a buffer.");
     return false;
   }
 
@@ -259,7 +260,7 @@ bool BosonCamera::openCamera()
 
   if (ioctl(fd, VIDIOC_QUERYBUF, &bufferinfo) < 0)
   {
-    ROS_ERROR("flir_boson_usb - VIDIOC_QUERYBUF error.");
+    ROS_ERROR("flir_boson_usb - VIDIOC_QUERYBUF error. Failed to retreive buffer information.");
     return false;
   }
 
@@ -269,7 +270,7 @@ bool BosonCamera::openCamera()
 
   if (buffer_start == MAP_FAILED)
   {
-    ROS_ERROR("flir_boson_usb - mmap error.");
+    ROS_ERROR("flir_boson_usb - mmap error. Failed to create a memory map for buffer.");
     return false;
   }
 
@@ -280,7 +281,7 @@ bool BosonCamera::openCamera()
   int type = bufferinfo.type;
   if (ioctl(fd, VIDIOC_STREAMON, &type) < 0)
   {
-    ROS_ERROR("flir_boson_usb - VIDIOC_STREAMON error.");
+    ROS_ERROR("flir_boson_usb - VIDIOC_STREAMON error. Failed to activate streaming on the camera.");
     return false;
   }
 
@@ -316,7 +317,7 @@ bool BosonCamera::closeCamera()
   int type = bufferinfo.type;
   if (ioctl(fd, VIDIOC_STREAMOFF, &type) < 0 )
   {
-    ROS_ERROR("flir_boson_usb - VIDIOC_STREAMOFF error.");
+    ROS_ERROR("flir_boson_usb - VIDIOC_STREAMOFF error. Failed to disable streaming on the camera.");
     return false;
   };
 
@@ -337,14 +338,14 @@ void BosonCamera::captureAndPublish(const ros::TimerEvent& evt)
   // Put the buffer in the incoming queue.
   if (ioctl(fd, VIDIOC_QBUF, &bufferinfo) < 0)
   {
-    ROS_ERROR("flir_boson_usb - VIDIOC_QBUF error.");
+    ROS_ERROR("flir_boson_usb - VIDIOC_QBUF error. Failed to queue the image buffer.");
     return;
   }
 
   // The buffer's waiting in the outgoing queue.
   if (ioctl(fd, VIDIOC_DQBUF, &bufferinfo) < 0)
   {
-    ROS_ERROR("flir_boson_usb - VIDIOC_DQBUF error.");
+    ROS_ERROR("flir_boson_usb - VIDIOC_DQBUF error. Failed to dequeue the image buffer.");
     return;
   }
 
