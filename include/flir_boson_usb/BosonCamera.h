@@ -79,8 +79,8 @@ class BosonCamera : public nodelet::Nodelet
     void captureAndPublish(const ros::TimerEvent& evt);
 
     ros::NodeHandle nh, pnh;
-    boost::shared_ptr<camera_info_manager::CameraInfoManager> camera_info;
-    boost::shared_ptr<image_transport::ImageTransport> it;
+    std::shared_ptr<camera_info_manager::CameraInfoManager> camera_info;
+    std::shared_ptr<image_transport::ImageTransport> it;
     image_transport::CameraPublisher image_pub;
     cv_bridge::CvImage cv_img;
     sensor_msgs::ImagePtr pub_image;

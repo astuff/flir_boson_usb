@@ -40,9 +40,9 @@ void BosonCamera::onInit()
 {
   nh = getNodeHandle();
   pnh = getPrivateNodeHandle();
-  camera_info = boost::shared_ptr<camera_info_manager::CameraInfoManager>(
+  camera_info = std::shared_ptr<camera_info_manager::CameraInfoManager>(
       new camera_info_manager::CameraInfoManager(nh));
-  it = boost::shared_ptr<image_transport::ImageTransport>(new image_transport::ImageTransport(nh));
+  it = std::shared_ptr<image_transport::ImageTransport>(new image_transport::ImageTransport(nh));
   image_pub = it->advertiseCamera("image_raw", 1);
 
   bool exit = false;
