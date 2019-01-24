@@ -42,6 +42,7 @@
 #include <nodelet/nodelet.h>
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
+#include <camera_info_manager/camera_info_manager.h>
 
 #include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/Image.h>
@@ -64,7 +65,7 @@ enum SensorTypes
 class BosonCamera : public nodelet::Nodelet
 {
   public:
-    BosonCamera() {}
+    BosonCamera();
     ~BosonCamera();
 
   private:
@@ -77,7 +78,10 @@ class BosonCamera : public nodelet::Nodelet
     bool closeCamera();
     void captureAndPublish(const ros::TimerEvent& evt);
 
-    image_transport::Publisher image_pub;
+    ros::NodeHandle nh, pnh;
+    std::shared_ptr<camera_info_manager::CameraInfoManager> camera_info;
+    std::shared_ptr<image_transport::ImageTransport> it;
+    image_transport::CameraPublisher image_pub;
     cv_bridge::CvImage cv_img;
     sensor_msgs::ImagePtr pub_image;
     ros::Timer capture_timer;
@@ -94,9 +98,11 @@ class BosonCamera : public nodelet::Nodelet
             thermal_rgb_zoom, thermal_luma, thermal_rgb;
 
     // Default Program options
-    std::string dev_path;
+    std::string frame_id, dev_path, camera_info_url,
+      video_mode_str, sensor_type_str;
+    float frame_rate;
     Encoding video_mode;
-    int32_t zoom_enable;
+    bool zoom_enable;
     SensorTypes sensor_type;
 };
 

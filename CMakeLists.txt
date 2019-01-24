@@ -10,6 +10,7 @@ find_package(catkin REQUIRED
   cv_bridge
   image_transport
   sensor_msgs
+  camera_info_manager
   roslint
 )
 
@@ -17,6 +18,8 @@ find_package(OpenCV REQUIRED)
 
 catkin_package(
   CATKIN_DEPENDS
+  camera_info_manager
+  image_transport
   cv_bridge
   nodelet
 )
