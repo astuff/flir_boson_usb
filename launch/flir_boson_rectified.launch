@@ -7,6 +7,9 @@
   <!-- the linux file descriptor location for the camera -->
   <arg name="dev" default="/dev/video0"/>
 
+  <!-- valid values are 30.0 or 60.0 for Bosons -->
+  <arg name="frame_rate" default="30.0"/>
+
   <!-- valid values are RAW16 or YUV -->
   <arg name="video_mode" default="YUV"/>
 
@@ -26,6 +29,7 @@
     <node pkg="nodelet" type="nodelet" name="$(arg manager)_driver" args="load flir_boson_usb/BosonCamera $(arg manager)">
       <param name="frame_id" value="$(arg frame_id)"/>
       <param name="dev" value="$(arg dev)"/>
+      <param name="frame_rate" value="$(arg frame_rate)"/>
       <param name="video_mode" value="$(arg video_mode)"/>
       <param name="zoom_enable" value="$(arg zoom_enable)"/>
       <param name="sensor_type" value="$(arg sensor_type)"/>

@@ -46,11 +46,12 @@ void BosonCamera::onInit()
   image_pub = it->advertiseCamera("image_raw", 1);
 
   bool exit = false;
-  std::string video_mode_str, zoom_enable_str,
-    sensor_type_str;
+  std::string frame_rate_str, video_mode_str,
+    zoom_enable_str, sensor_type_str;
 
   pnh.param<std::string>("frame_id", frame_id, "boson_camera");
   pnh.param<std::string>("dev", dev_path, "/dev/video0");
+  pnh.param<std::string>("frame_rate", frame_rate_str, "30.0");
   pnh.param<std::string>("video_mode", video_mode_str, "RAW16");
   pnh.param<std::string>("zoon_enable", zoom_enable_str, "FALSE");
   pnh.param<std::string>("sensor_type", sensor_type_str, "Boson_640");
@@ -58,10 +59,21 @@ void BosonCamera::onInit()
 
   ROS_INFO("flir_boson_usb - Got frame_id: %s.", frame_id.c_str());
   ROS_INFO("flir_boson_usb - Got dev: %s.", dev_path.c_str());
+  ROS_INFO("flir_boson_usb - Got frame rate: %s.", frame_rate_str.c_str());
   ROS_INFO("flir_boson_usb - Got video mode: %s.", video_mode_str.c_str());
   ROS_INFO("flir_boson_usb - Got zoom enable: %s.", zoom_enable_str.c_str());
   ROS_INFO("flir_boson_usb - Got sensor type: %s.", sensor_type_str.c_str());
   ROS_INFO("flir_boson_usb - Got camera_info_url: %s.", camera_info_url.c_str());
+
+  try
+  {
+    frame_rate = std::stof(frame_rate_str);
+  }
+  catch (std::exception ex)
+  {
+    exit = true;
+    ROS_ERROR("flir_boson_usb - Invalid frame rate value provided.");
+  }
 
   if (video_mode_str == "RAW16")
   {
@@ -130,8 +142,10 @@ void BosonCamera::onInit()
     ros::shutdown();
     return;
   }
-
-  capture_timer = nh.createTimer(ros::Duration(0.03333), boost::bind(&BosonCamera::captureAndPublish, this, _1));
+  else
+  {
+    capture_timer = nh.createTimer(ros::Duration(1.0 / frame_rate), boost::bind(&BosonCamera::captureAndPublish, this, _1));
+  }
 }
 
 // AGC Sample ONE: Linear from min to max.
