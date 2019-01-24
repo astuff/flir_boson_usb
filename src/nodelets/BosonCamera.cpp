@@ -46,34 +46,22 @@ void BosonCamera::onInit()
   image_pub = it->advertiseCamera("image_raw", 1);
 
   bool exit = false;
-  std::string frame_rate_str, video_mode_str,
-    zoom_enable_str, sensor_type_str;
 
   pnh.param<std::string>("frame_id", frame_id, "boson_camera");
   pnh.param<std::string>("dev", dev_path, "/dev/video0");
-  pnh.param<std::string>("frame_rate", frame_rate_str, "30.0");
+  pnh.param<float>("frame_rate", frame_rate, 30.0);
   pnh.param<std::string>("video_mode", video_mode_str, "RAW16");
-  pnh.param<std::string>("zoon_enable", zoom_enable_str, "FALSE");
+  pnh.param<bool>("zoon_enable", zoom_enable, false);
   pnh.param<std::string>("sensor_type", sensor_type_str, "Boson_640");
   pnh.param<std::string>("camera_info_url", camera_info_url, "");
 
   ROS_INFO("flir_boson_usb - Got frame_id: %s.", frame_id.c_str());
   ROS_INFO("flir_boson_usb - Got dev: %s.", dev_path.c_str());
-  ROS_INFO("flir_boson_usb - Got frame rate: %s.", frame_rate_str.c_str());
+  ROS_INFO("flir_boson_usb - Got frame rate: %f.", frame_rate);
   ROS_INFO("flir_boson_usb - Got video mode: %s.", video_mode_str.c_str());
-  ROS_INFO("flir_boson_usb - Got zoom enable: %s.", zoom_enable_str.c_str());
+  ROS_INFO("flir_boson_usb - Got zoom enable: %s.", (zoom_enable ? "true" : "false"));
   ROS_INFO("flir_boson_usb - Got sensor type: %s.", sensor_type_str.c_str());
   ROS_INFO("flir_boson_usb - Got camera_info_url: %s.", camera_info_url.c_str());
-
-  try
-  {
-    frame_rate = std::stof(frame_rate_str);
-  }
-  catch (std::exception ex)
-  {
-    exit = true;
-    ROS_ERROR("flir_boson_usb - Invalid frame rate value provided.");
-  }
 
   if (video_mode_str == "RAW16")
   {
@@ -87,24 +75,6 @@ void BosonCamera::onInit()
   {
     exit = true;
     ROS_ERROR("flir_boson_usb - Invalid video_mode value provided. Exiting.");
-  }
-
-  if (zoom_enable_str == "TRUE" ||
-      zoom_enable_str == "True" ||
-      zoom_enable_str == "true")
-  {
-    zoom_enable = 1;
-  }
-  else if (zoom_enable_str == "FALSE" ||
-           zoom_enable_str == "False" ||
-           zoom_enable_str == "false")
-  {
-    zoom_enable = 0;
-  }
-  else
-  {
-    exit = true;
-    ROS_ERROR("flir_boson_usb - Invalid zoom_enable value provided. Exiting.");
   }
 
   if (sensor_type_str == "Boson_320" ||
@@ -385,7 +355,7 @@ void BosonCamera::captureAndPublish(const ros::TimerEvent& evt)
     agcBasicLinear(thermal16, &thermal16_linear, height, width);
 
     // Display thermal after 16-bits AGC... will display an image
-    if (zoom_enable == 0)
+    if (!zoom_enable)
     {
       // Threshold using Otsu's method, then use the result as a mask on the original image
       Mat mask_mat, masked_img;

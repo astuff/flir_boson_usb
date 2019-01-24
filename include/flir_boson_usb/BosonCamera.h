@@ -98,10 +98,11 @@ class BosonCamera : public nodelet::Nodelet
             thermal_rgb_zoom, thermal_luma, thermal_rgb;
 
     // Default Program options
-    std::string frame_id, dev_path, camera_info_url;
+    std::string frame_id, dev_path, camera_info_url,
+      video_mode_str, sensor_type_str;
     float frame_rate;
     Encoding video_mode;
-    int32_t zoom_enable;
+    bool zoom_enable;
     SensorTypes sensor_type;
 };
 
