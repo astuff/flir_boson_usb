@@ -2,8 +2,8 @@
 Changelog for package flir_boson_usb
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.0 (2019-01-24)
+------------------
 * Merge pull request `#2 <https://github.com/astuff/flir_boson_usb/issues/2>`_ from astuff/feat/add_camera_info_manager
   Feat/add camera info manager
 * Defaulting to 60 fps everywhere.
