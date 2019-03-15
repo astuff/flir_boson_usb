@@ -22,6 +22,7 @@ catkin_package(
   image_transport
   cv_bridge
   nodelet
+  sensor_msgs
 )
 
 include_directories(
@@ -69,6 +70,10 @@ install(TARGETS ${PROJECT_NAME}_node BosonCamera
 
 install(DIRECTORY
   launch
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(FILES nodelet_plugins.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
