@@ -2,8 +2,8 @@
 Changelog for package flir_boson_usb
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.2.1 (2019-07-01)
+------------------
 * Merge pull request `#3 <https://github.com/astuff/flir_boson_usb/issues/3>`_ from valgur/patch-1
 * Fix minor issues detected by catkin_lint
 * Fixing installation of nodelet_plugins.xml.
