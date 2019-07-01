@@ -2,6 +2,13 @@
 Changelog for package flir_boson_usb
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Merge pull request `#3 <https://github.com/astuff/flir_boson_usb/issues/3>`_ from valgur/patch-1
+* Fix minor issues detected by catkin_lint
+* Fixing installation of nodelet_plugins.xml.
+* Contributors: Joe Driscoll, Joshua Whitley, Martin Valgur, Sam Rustan
+
 1.2.0 (2019-01-24)
 ------------------
 * Merge pull request `#2 <https://github.com/astuff/flir_boson_usb/issues/2>`_ from astuff/feat/add_camera_info_manager
