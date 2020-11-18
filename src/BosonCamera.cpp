@@ -18,43 +18,43 @@
  * OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#include <pluginlib/class_list_macros.h>
+#include <pluginlib/class_list_macros.hpp>
 #include "flir_boson_usb/BosonCamera.h"
+#include <chrono>
+#include <functional>
+#include <memory>
+#include <string>
 
-PLUGINLIB_EXPORT_CLASS(flir_boson_usb::BosonCamera, nodelet::Nodelet)
+#define ROS_INFO(A,...) printf("INFO  " A "\n",##__VA_ARGS__)
+#define ROS_ERROR(A,...) printf("ERROR " A "\n",##__VA_ARGS__)
 
 using namespace cv;
 using namespace flir_boson_usb;
-
-BosonCamera::BosonCamera() :
-  cv_img()
-{
-}
+using namespace std::chrono_literals;
 
 BosonCamera::~BosonCamera()
 {
   closeCamera();
 }
 
-void BosonCamera::onInit()
+void BosonCamera::onInit(BosonCamera::SharedPtr node)
 {
-  nh = getNodeHandle();
-  pnh = getPrivateNodeHandle();
-  camera_info = std::shared_ptr<camera_info_manager::CameraInfoManager>(
-      new camera_info_manager::CameraInfoManager(nh));
-  it = std::shared_ptr<image_transport::ImageTransport>(new image_transport::ImageTransport(nh));
-  image_pub = it->advertiseCamera("image_raw", 1);
+  camera_info = std::make_shared<camera_info_manager::CameraInfoManager>(this);
+      
+  it = std::make_shared<image_transport::ImageTransport>(node);
+  
 
   bool exit = false;
 
-  pnh.param<std::string>("frame_id", frame_id, "boson_camera");
-  pnh.param<std::string>("dev", dev_path, "/dev/video0");
-  pnh.param<float>("frame_rate", frame_rate, 60.0);
-  pnh.param<std::string>("video_mode", video_mode_str, "RAW16");
-  pnh.param<bool>("zoon_enable", zoom_enable, false);
-  pnh.param<std::string>("sensor_type", sensor_type_str, "Boson_640");
-  pnh.param<std::string>("camera_info_url", camera_info_url, "");
-
+  frame_id=this->declare_parameter<std::string>("frame_id","boson_camera");
+  dev_path=this->declare_parameter<std::string>("dev", "/dev/video0");
+  frame_rate=this->declare_parameter<float>("frame_rate", 60.0);
+  video_mode_str=this->declare_parameter<std::string>("video_mode", "RAW16");
+  zoom_enable=this->declare_parameter<bool>("zoom_enable", false);
+  sensor_type_str=this->declare_parameter<std::string>("sensor_type","Boson_640");
+  camera_info_url=this->declare_parameter<std::string>("camera_info_url","");
+  image_raw=this->declare_parameter<std::string>("image_topic","/flir/raw");
+ 
   ROS_INFO("flir_boson_usb - Got frame_id: %s.", frame_id.c_str());
   ROS_INFO("flir_boson_usb - Got dev: %s.", dev_path.c_str());
   ROS_INFO("flir_boson_usb - Got frame rate: %f.", frame_rate);
@@ -62,7 +62,9 @@ void BosonCamera::onInit()
   ROS_INFO("flir_boson_usb - Got zoom enable: %s.", (zoom_enable ? "true" : "false"));
   ROS_INFO("flir_boson_usb - Got sensor type: %s.", sensor_type_str.c_str());
   ROS_INFO("flir_boson_usb - Got camera_info_url: %s.", camera_info_url.c_str());
+  ROS_INFO("flir_boson_usb - Got image_topic: %s.", image_raw.c_str());
 
+  image_pub = it->advertiseCamera(image_raw, 1);
   if (video_mode_str == "RAW16")
   {
     video_mode = RAW16;
@@ -109,13 +111,12 @@ void BosonCamera::onInit()
 
   if (exit)
   {
-    ros::shutdown();
+    std::exit(-1);
     return;
   }
   else
   {
-    capture_timer = nh.createTimer(ros::Duration(1.0 / frame_rate),
-        boost::bind(&BosonCamera::captureAndPublish, this, _1));
+    this->create_wall_timer((1000ms / frame_rate),std::bind(&BosonCamera::captureAndPublish, this));
   }
 }
 
@@ -326,12 +327,11 @@ bool BosonCamera::closeCamera()
   return true;
 }
 
-void BosonCamera::captureAndPublish(const ros::TimerEvent& evt)
+void BosonCamera::captureAndPublish()
 {
   Size size(640, 512);
 
-  sensor_msgs::CameraInfoPtr
-    ci(new sensor_msgs::CameraInfo(camera_info->getCameraInfo()));
+  sensor_msgs::msg::CameraInfo::SharedPtr ci= std::make_shared<sensor_msgs::msg::CameraInfo>(camera_info->getCameraInfo());
 
   ci->header.frame_id = frame_id;
 
@@ -379,7 +379,7 @@ void BosonCamera::captureAndPublish(const ros::TimerEvent& evt)
       morphologyEx(gamma_corrected_image, top_hat_img, MORPH_TOPHAT, kernel);
 
       cv_img.image = thermal16_linear;
-      cv_img.header.stamp = ros::Time::now();
+      cv_img.header.stamp = this->now();
       cv_img.header.frame_id = frame_id;
       cv_img.encoding = "mono8";
       pub_image = cv_img.toImageMsg();
@@ -392,7 +392,7 @@ void BosonCamera::captureAndPublish(const ros::TimerEvent& evt)
       resize(thermal16_linear, thermal16_linear_zoom, size);
 
       cv_img.image = thermal16_linear_zoom;
-      cv_img.header.stamp = ros::Time::now();
+      cv_img.header.stamp = this->now();
       cv_img.header.frame_id = frame_id;
       cv_img.encoding = "mono8";
       pub_image = cv_img.toImageMsg();
@@ -409,7 +409,7 @@ void BosonCamera::captureAndPublish(const ros::TimerEvent& evt)
 
     cv_img.image = thermal_rgb;
     cv_img.encoding = "mono8";
-    cv_img.header.stamp = ros::Time::now();
+    cv_img.header.stamp = this->now();
     cv_img.header.frame_id = frame_id;
     pub_image = cv_img.toImageMsg();
 

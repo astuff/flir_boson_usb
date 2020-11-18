@@ -38,14 +38,13 @@
 #include <opencv2/opencv.hpp>
 
 // ROS Includes
-#include <ros/ros.h>
-#include <nodelet/nodelet.h>
+#include <rclcpp/rclcpp.hpp>
 #include <cv_bridge/cv_bridge.h>
-#include <image_transport/image_transport.h>
-#include <camera_info_manager/camera_info_manager.h>
+#include <image_transport/image_transport.hpp>
+#include <camera_info_manager/camera_info_manager.hpp>
 
-#include <sensor_msgs/CameraInfo.h>
-#include <sensor_msgs/Image.h>
+#include <sensor_msgs/msg/camera_info.hpp>
+#include <sensor_msgs/msg/image.hpp>
 
 namespace flir_boson_usb
 {
@@ -62,29 +61,29 @@ enum SensorTypes
   Boson640
 };
 
-class BosonCamera : public nodelet::Nodelet
+class BosonCamera : public rclcpp::Node
 {
   public:
-    BosonCamera();
+    BosonCamera(std::string name):Node(name),cv_img(){};
+    void onInit(BosonCamera::SharedPtr node);
     ~BosonCamera();
 
   private:
-    virtual void onInit();
+    
     void agcBasicLinear(const cv::Mat& input_16,
                         cv::Mat* output_8,
                         const int& height,
                         const int& width);
     bool openCamera();
     bool closeCamera();
-    void captureAndPublish(const ros::TimerEvent& evt);
+    void captureAndPublish();
 
-    ros::NodeHandle nh, pnh;
     std::shared_ptr<camera_info_manager::CameraInfoManager> camera_info;
     std::shared_ptr<image_transport::ImageTransport> it;
     image_transport::CameraPublisher image_pub;
     cv_bridge::CvImage cv_img;
-    sensor_msgs::ImagePtr pub_image;
-    ros::Timer capture_timer;
+    sensor_msgs::msg::Image::SharedPtr pub_image;
+    rclcpp::TimerBase::SharedPtr capture_timer;
     int32_t width, height;
     int32_t fd;
     int32_t i;
@@ -99,7 +98,7 @@ class BosonCamera : public nodelet::Nodelet
 
     // Default Program options
     std::string frame_id, dev_path, camera_info_url,
-      video_mode_str, sensor_type_str;
+      video_mode_str, sensor_type_str, image_raw;
     float frame_rate;
     Encoding video_mode;
     bool zoom_enable;

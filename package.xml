@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package format="2">
+<package format="3">
   <name>flir_boson_usb</name>
   <version>1.2.1</version>
   <description>A simple USB camera driver for the FLIR BOSON using OpenCV</description>
@@ -13,18 +13,18 @@
   <url type="repository">https://github.com/astuff/flir_boson_usb</url>
   <url type="bugtracker">https://github.com/astuff/flir_boson_usb/issues</url>
 
-  <buildtool_depend>catkin</buildtool_depend>
-
-  <build_depend>roslint</build_depend>
-
-  <depend>roscpp</depend>
-  <depend>nodelet</depend>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+<exec_depend>launch_ros</exec_depend>
+<exec_depend>launch_xml</exec_depend>
+  <depend>rclcpp</depend>
+  <depend>std_msgs</depend>
   <depend>cv_bridge</depend>
   <depend>camera_info_manager</depend>
   <depend>image_transport</depend>
   <depend>sensor_msgs</depend>
-
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
   <export>
-    <nodelet plugin="${prefix}/nodelet_plugins.xml"/>
+    <build_type>ament_cmake</build_type>
   </export>
 </package>

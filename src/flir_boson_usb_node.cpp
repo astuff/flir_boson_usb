@@ -21,17 +21,14 @@
 #include <string>
 
 // ROS Includes
-#include <ros/ros.h>
-#include <nodelet/loader.h>
+#include <rclcpp/rclcpp.hpp>
+#include "flir_boson_usb/BosonCamera.h"
 
 int main(int argc, char** argv)
 {
-  ros::init(argc, argv, "Boson Camera Node");
-  nodelet::Loader nodelet;
-  nodelet::M_string remap(ros::names::getRemappings());
-  nodelet::V_string nargv;
-  std::string nodelet_name = ros::this_node::getName();
-  nodelet.load(nodelet_name, "flir_boson_usb/BosonCamera", remap, nargv);
-  ros::spin();
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<flir_boson_usb::BosonCamera>("Boson_Camera_Node");
+  node->onInit(node);
+  rclcpp::spin(node);
   return 0;
 }
