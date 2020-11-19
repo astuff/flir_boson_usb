@@ -49,5 +49,9 @@ install(DIRECTORY
   launch
   DESTINATION share/${PROJECT_NAME}
 )
+install(DIRECTORY
+  example_calibrations
+  DESTINATION share/${PROJECT_NAME}
+)
 
 ament_package()

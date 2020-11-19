@@ -25,8 +25,8 @@
 #include <memory>
 #include <string>
 
-#define ROS_INFO(A,...) printf("INFO  " A "\n",##__VA_ARGS__)
-#define ROS_ERROR(A,...) printf("ERROR " A "\n",##__VA_ARGS__)
+#define ROS_INFO(A,...) printf("[INFO] [%ld] " A "\n",now().nanoseconds(), ##__VA_ARGS__)
+#define ROS_ERROR(A,...) printf("[ERROR] [%ld] " A "\n",now().nanoseconds(), ##__VA_ARGS__)
 
 using namespace cv;
 using namespace flir_boson_usb;
@@ -39,8 +39,7 @@ BosonCamera::~BosonCamera()
 
 void BosonCamera::onInit(BosonCamera::SharedPtr node)
 {
-  camera_info = std::make_shared<camera_info_manager::CameraInfoManager>(this);
-      
+     
   it = std::make_shared<image_transport::ImageTransport>(node);
   
 
@@ -52,7 +51,7 @@ void BosonCamera::onInit(BosonCamera::SharedPtr node)
   video_mode_str=this->declare_parameter<std::string>("video_mode", "RAW16");
   zoom_enable=this->declare_parameter<bool>("zoom_enable", false);
   sensor_type_str=this->declare_parameter<std::string>("sensor_type","Boson_640");
-  camera_info_url=this->declare_parameter<std::string>("camera_info_url","");
+  camera_info_url=this->declare_parameter<std::string>("camera_info_url","package://flir_boson_usb/example_calibrations/Boson640.yaml");
   image_raw=this->declare_parameter<std::string>("image_topic","/flir/raw");
  
   ROS_INFO("flir_boson_usb - Got frame_id: %s.", frame_id.c_str());
@@ -78,7 +77,8 @@ void BosonCamera::onInit(BosonCamera::SharedPtr node)
     exit = true;
     ROS_ERROR("flir_boson_usb - Invalid video_mode value provided. Exiting.");
   }
-
+  camera_info = std::make_shared<camera_info_manager::CameraInfoManager>(this,image_raw,camera_info_url);
+  
   if (sensor_type_str == "Boson_320" ||
       sensor_type_str == "boson_320")
   {
@@ -116,7 +116,9 @@ void BosonCamera::onInit(BosonCamera::SharedPtr node)
   }
   else
   {
-    this->create_wall_timer((1000ms / frame_rate),std::bind(&BosonCamera::captureAndPublish, this));
+    ROS_INFO("flir_boson_usb - creating timer");
+    //this->create_wall_timer((1000ms / frame_rate),std::bind(&BosonCamera::captureAndPublish, this));
+    capture_timer=this->create_wall_timer(std::chrono::milliseconds((long)(1000.0/frame_rate)),std::bind(&BosonCamera::captureAndPublish, this));
   }
 }
 
