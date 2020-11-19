@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="frame_id" default="boson_camera"/>
+  <arg name="dev" default="/dev/video0"/>
+  <arg name="frame_rate" default="60.0"/>
+  <arg name="video_mode" default="YUV"/>
+  <arg name="zoom_enable" default="FALSE"/>
+  <arg name="sensor_type" default="Boson_640"/>
+  <arg name="camera_info_url" default="package://flir_boson_usb/example_calibrations/Boson640.yaml"/>
+
+  <node pkg="flir_boson_usb" exec="flir_boson_usb_node" output="screen">
+    <param name="frame_id" value="$(var frame_id)"/>
+    <param name="dev" value="$(var dev)"/>
+    <param name="frame_rate" value="$(var frame_rate)"/>
+    <param name="video_mode" value="$(var video_mode)"/>
+    <param name="zoom_enable" value="$(var zoom_enable)"/>
+    <param name="sensor_type" value="$(var sensor_type)"/>
+    <param name="camera_info_url" value="$(var camera_info_url)"/>
+  </node>
+</launch>

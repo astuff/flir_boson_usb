@@ -25,8 +25,8 @@
 #include <memory>
 #include <string>
 
-#define ROS_INFO(A,...) printf("[INFO] [%ld] " A "\n",now().nanoseconds(), ##__VA_ARGS__)
-#define ROS_ERROR(A,...) printf("[ERROR] [%ld] " A "\n",now().nanoseconds(), ##__VA_ARGS__)
+#define ROS_INFO(A,...) RCLCPP_INFO(get_logger(),A, ##__VA_ARGS__)
+#define ROS_ERROR(A,...) RCLCPP_ERROR(get_logger(),A, ##__VA_ARGS__)
 
 using namespace cv;
 using namespace flir_boson_usb;
@@ -54,14 +54,14 @@ void BosonCamera::onInit(BosonCamera::SharedPtr node)
   camera_info_url=this->declare_parameter<std::string>("camera_info_url","package://flir_boson_usb/example_calibrations/Boson640.yaml");
   image_raw=this->declare_parameter<std::string>("image_topic","/flir/raw");
  
-  ROS_INFO("flir_boson_usb - Got frame_id: %s.", frame_id.c_str());
-  ROS_INFO("flir_boson_usb - Got dev: %s.", dev_path.c_str());
-  ROS_INFO("flir_boson_usb - Got frame rate: %f.", frame_rate);
-  ROS_INFO("flir_boson_usb - Got video mode: %s.", video_mode_str.c_str());
-  ROS_INFO("flir_boson_usb - Got zoom enable: %s.", (zoom_enable ? "true" : "false"));
-  ROS_INFO("flir_boson_usb - Got sensor type: %s.", sensor_type_str.c_str());
-  ROS_INFO("flir_boson_usb - Got camera_info_url: %s.", camera_info_url.c_str());
-  ROS_INFO("flir_boson_usb - Got image_topic: %s.", image_raw.c_str());
+  ROS_INFO("Got frame_id: %s.", frame_id.c_str());
+  ROS_INFO("Got dev: %s.", dev_path.c_str());
+  ROS_INFO("Got frame rate: %f.", frame_rate);
+  ROS_INFO("Got video mode: %s.", video_mode_str.c_str());
+  ROS_INFO("Got zoom enable: %s.", (zoom_enable ? "true" : "false"));
+  ROS_INFO("Got sensor type: %s.", sensor_type_str.c_str());
+  ROS_INFO("Got camera_info_url: %s.", camera_info_url.c_str());
+  ROS_INFO("Got image_topic: %s.", image_raw.c_str());
 
   image_pub = it->advertiseCamera(image_raw, 1);
   if (video_mode_str == "RAW16")
